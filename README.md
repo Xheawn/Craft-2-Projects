@@ -1,11 +1,14 @@
 # Craft-2-Projects
+
 HHHHHeeeeeeeeeeeLLLLLLOOOOoooooo!!!!!!!!! 
+
 
 Please follow the following steps to retrieve the code:
 - create a folder for the stuff
 - open up the terminal/cmd and cd into the folder 
 - git clone https://github.com/Xheawn/Craft-2-Projects.git
 - open the folder in vscode or whatever ide then you will see all the stuff!!
+
 
 
 If you want to upload stuff or make changes to the main repository:
