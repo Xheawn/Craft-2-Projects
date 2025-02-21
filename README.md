@@ -1,5 +1,5 @@
 # Craft-2-Projects
-HeLLLLLLLLLLLLLLLLOOOOoooooo!!!!!!!!! 
+HHHHHeeeeeeeeeeeLLLLLLOOOOoooooo!!!!!!!!! 
 
 Please follow the following steps to retrieve the code:
 - create a folder for the stuff
@@ -9,9 +9,9 @@ Please follow the following steps to retrieve the code:
 
 
 If you want to upload stuff or make changes to the main repository:
-	1.	Make sure your local repository is up to date.
-	2.	Create a new branch from the main or develop branch.
-	3.	Make your changes and commit them locally.
-	4.	Push your branch to the remote repository.
-	5.	Open a pull request (PR) for review.
-	6.	Merge the pull request once approved. (Optionally, run any available CI tests)
+1.	Make sure your local repository is up to date.
+2.	Create a new branch from the main or develop branch.
+3.	Make your changes and commit them locally.
+4.	Push your branch to the remote repository.
+5.	Open a pull request (PR) for review.
+6.	Merge the pull request once approved. (Optionally, run any available CI tests)
