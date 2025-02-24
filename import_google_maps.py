@@ -1,6 +1,17 @@
 import googlemaps
 import polyline
 import math
+from dataclasses import dataclass
+from typing import List, Optional
+
+@dataclass
+@dataclass
+class Point:
+    latitude: float
+    longitude: float
+    angle: float = None
+
+points: List[Point] = []
 
 # 请用你的 API Key 替换下面的 YOUR_API_KEY
 gmaps = googlemaps.Client(key='AIzaSyDuq-bA6uuLX6oXoUFuKVRZlShHYhdBsFQ')
@@ -25,7 +36,6 @@ coords = polyline.decode(encoded_poly)
 
 # 计算每2个坐标之间与x轴（纬线）所夹的角度
 # 我们假设x轴正方向为0度，逆时针为正，我们想要输出0到360度的区间，所以我们对不同的象限（方向）分类讨论
-directions: list[float] = []
 for i in range(1, len(coords)):
     la_diff = coords[i][0] - coords[i - 1][0]
     long_diff = coords[i][1] - coords[i - 1][1]
@@ -37,13 +47,12 @@ for i in range(1, len(coords)):
     else: # 第二象限/第三象限
         angle_degree = math.degrees(math.atan2(la_diff, long_diff)) + 180.0
     
-    directions.append(angle_degree)
+    points.append(Point(coords[i - 1][0], coords[i - 1][1], angle_degree))
 
-print("方向：")
-print(directions)
+# 导入最后一个点。因为最后一个点没有方向，我们把他设为none，也就是不传任何值。
+points.append(Point(coords[len(coords) - 1][0], coords[len(coords) - 1][1]))
 
-print("路线坐标：")
-print(coords)
+print(points)
 
 # 提取并打印每一步的转向指示信息
 print("\n转向指示：")
