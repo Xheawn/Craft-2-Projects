@@ -2,9 +2,9 @@ import googlemaps
 import polyline
 import math
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
+from pyicloud import PyiCloudService
 
-@dataclass
 @dataclass
 class Point:
     latitude: float
