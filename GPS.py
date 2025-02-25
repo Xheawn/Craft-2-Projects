@@ -6,7 +6,8 @@ from typing import List
 from pyicloud import PyiCloudService
 import sys
 
-api = PyiCloudService('你的账号', '你的密码') # 注意不能是国区，国区会出bug
+#亲测有效，但是很慢，可能还得想其他方法
+api = PyiCloudService('你的账号', '你的密码') # 注意不能是国区，国区会出bug，而且商店和正常的得用一个账号
 if api.requires_2fa:
     print("Two-factor authentication required.")
     code = input("Enter the code you received of one of your approved devices: ")
@@ -46,4 +47,4 @@ elif api.requires_2sa:
         print("Failed to verify verification code")
         sys.exit(1)
 
-print(api.data)
+print(api.devices[3].location()) # 我的iphone，这个数字你自己摸索
