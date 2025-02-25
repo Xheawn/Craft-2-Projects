@@ -1,20 +1,17 @@
 import googlemaps
 import polyline
 import math
-from dataclasses import dataclass
 from typing import List
-from pyicloud import PyiCloudService
+import GPS
+from Point import Point
 
-@dataclass
-class Point:
-    latitude: float
-    longitude: float
-    angle: float = None
+# 我们如果要调取实时方向就只能用swift获取ios的信息，我查了半天用windows基本不可能写swift，剩下的就靠你了加油
 
 points: List[Point] = []
 
 # 请用你的 API Key 替换下面的 YOUR_API_KEY
 gmaps = googlemaps.Client(key='AIzaSyDuq-bA6uuLX6oXoUFuKVRZlShHYhdBsFQ')
+icloud_data = GPS.login("你的账号", "你的密码")
 
 # 定义起点和终点地址（假设 UW 的 Maple Hall 和 UW 的 CSE Building 在 Seattle 校区）
 origin = "Maple Hall, University of Washington, Seattle, WA"
@@ -64,4 +61,7 @@ for i, step in enumerate(steps, start=1):
     duration = step.get('duration', {}).get('text', '')
     print(f"步骤 {i}: {instruction} (操作: {maneuver}, 距离: {distance}, 时间: {duration})")
 
+# 打出目前所在的经纬度
+while True :
+    print(GPS.get_curr_location(icloud_data))
 

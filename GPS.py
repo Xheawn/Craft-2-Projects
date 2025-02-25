@@ -1,50 +1,58 @@
-import googlemaps
-import polyline
-import math
-from dataclasses import dataclass
-from typing import List
 from pyicloud import PyiCloudService
 import sys
+from Point import Point
 
-#亲测有效，但是很慢，可能还得想其他方法
-api = PyiCloudService('你的账号', '你的密码') # 注意不能是国区，国区会出bug，而且商店和正常的得用一个账号
-if api.requires_2fa:
-    print("Two-factor authentication required.")
-    code = input("Enter the code you received of one of your approved devices: ")
-    result = api.validate_2fa_code(code)
-    print("Code validation result: %s" % result)
+# 亲测有效，平均一秒一次
+# 在室内定位很不准确，所以到时候演示可能要从室外开始
 
-    if not result:
-        print("Failed to verify security code")
-        sys.exit(1)
+def login(account: str, password: str) -> PyiCloudService :
+    """
+    登陆，注意不能是国区，而且商店和设置的账号得要一样。
+    """
+    api = PyiCloudService(account, password)
 
-    if not api.is_trusted_session:
-        print("Session is not trusted. Requesting trust...")
-        result = api.trust_session()
-        print("Session trust result %s" % result)
+    # 假设需要双验证，我们把让用户输入双验证的密码。
+    if api.requires_2fa:
+        print("Two-factor authentication required.")
+        code = input("Enter the code you received of one of your approved devices: ")
+        result = api.validate_2fa_code(code)
+        print("Code validation result: %s" % result)
 
         if not result:
-            print("Failed to request trust. You will likely be prompted for the code again in the coming weeks")
-elif api.requires_2sa:
-    import click
-    print("Two-step authentication required. Your trusted devices are:")
+            print("Failed to verify security code")
+            sys.exit(1)
 
-    devices = api.trusted_devices
-    for i, device in enumerate(devices):
-        print(
-            "  %s: %s" % (i, device.get('deviceName',
-            "SMS to %s" % device.get('phoneNumber')))
-        )
+        if not api.is_trusted_session:
+            print("Session is not trusted. Requesting trust...")
+            result = api.trust_session()
+            print("Session trust result %s" % result)
 
-    device = click.prompt('Which device would you like to use?', default=0)
-    device = devices[device]
-    if not api.send_verification_code(device):
-        print("Failed to send verification code")
-        sys.exit(1)
+            if not result:
+                print("Failed to request trust. You will likely be prompted for the code again in the coming weeks")
+    elif api.requires_2sa:
+        import click
+        print("Two-step authentication required. Your trusted devices are:")
 
-    code = click.prompt('Please enter validation code')
-    if not api.validate_verification_code(device, code):
-        print("Failed to verify verification code")
-        sys.exit(1)
+        devices = api.trusted_devices
+        for i, device in enumerate(devices):
+            print(
+                "  %s: %s" % (i, device.get('deviceName',
+                "SMS to %s" % device.get('phoneNumber')))
+            )
 
-print(api.devices[3].location()) # 我的iphone，这个数字你自己摸索
+        device = click.prompt('Which device would you like to use?', default=0)
+        device = devices[device]
+        if not api.send_verification_code(device):
+            print("Failed to send verification code")
+            sys.exit(1)
+
+        code = click.prompt('Please enter validation code')
+        if not api.validate_verification_code(device, code):
+            print("Failed to verify verification code")
+            sys.exit(1)
+    return api
+
+def get_curr_location(api: PyiCloudService) -> Point:
+    loc = api.devices[3].location()
+    return Point(loc['latitude'], loc['longitude'])
+
