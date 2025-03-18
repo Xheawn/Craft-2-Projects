@@ -11,6 +11,4 @@ class Point:
         point_to_str = f"latitude: {self.latitude}\nlongitude: {self.longitude}\n"
         if self.angle is not None:
             point_to_str += f"angle: {self.angle}\n\n"
-        return point_to_str
-
-    
+        return point_to_str 

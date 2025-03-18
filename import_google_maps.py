@@ -1,9 +1,11 @@
+import time
 import googlemaps
 import polyline
 import math
 from typing import List
 import GPS
 from Point import Point
+import datetime
 
 # 我们如果要调取实时方向就只能用swift获取ios的信息，我查了半天用windows基本不可能写swift，剩下的就靠你了加油
 
@@ -11,7 +13,7 @@ points: List[Point] = []
 
 # 请用你的 API Key 替换下面的 YOUR_API_KEY
 gmaps = googlemaps.Client(key='AIzaSyDuq-bA6uuLX6oXoUFuKVRZlShHYhdBsFQ')
-icloud_data = GPS.login("你的账号", "你的密码")
+icloud_data = GPS.login("3087837258@qq.com", "Okmijnuhb0987")
 
 # 定义起点和终点地址（假设 UW 的 Maple Hall 和 UW 的 CSE Building 在 Seattle 校区）
 origin = "Maple Hall, University of Washington, Seattle, WA"
@@ -62,6 +64,19 @@ for i, step in enumerate(steps, start=1):
     print(f"步骤 {i}: {instruction} (操作: {maneuver}, 距离: {distance}, 时间: {duration})")
 
 # 打出目前所在的经纬度
-while True :
-    print(GPS.get_curr_location(icloud_data))
+with open("points_data.txt", "a", encoding="utf-8") as file:
+    current_time = datetime.datetime.now()
+    file.write(f"程序启动时间: {current_time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+    while True:
+        # 获取当前的位置数据
+        curr_location = GPS.get_curr_location(icloud_data)
+        # 将数据转换为字符串并写入文件，每次写入一行
+        file.write(str(curr_location) + "\n")
+        file.flush()  # 确保数据及时写入磁盘
+        # 同时打印到控制台
+        print(curr_location)
+        # 每5秒钟写入一次
+        time.sleep(5)
+
+
 
