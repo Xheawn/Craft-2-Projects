@@ -54,5 +54,5 @@ def login(account: str, password: str) -> PyiCloudService :
 
 def get_curr_location(api: PyiCloudService) -> Point:
     loc = api.devices[3].location()
-    return Point(loc['latitude'], loc['longitude'])
+    return Point(-1, loc['latitude'], loc['longitude'])
 
