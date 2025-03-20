@@ -14,8 +14,8 @@ class ThresholdStatus(Enum):
     ABOVE_THRESHOLD = 3   # 高于阈值
 
 class TurningDirection(Enum):
-    CLOCKWISE = 1   # 在圆形阈值里面
-    COUNTERCLOCKWISE = 2  # 在圆形阈值外，但在长方形阈值里面
+    CLOCKWISE = 1   # 顺时针
+    COUNTERCLOCKWISE = 2  # 逆时针
 
 def generate_path(api_authorization: googlemaps.Client, origin: Union[Tuple[float, float], str], destination: Union[Tuple[float, float], str]) -> List[Point]:
     """
@@ -71,7 +71,7 @@ def fix_angle(curr_location: Point, points: List[Point], radius: float) -> Union
     """
     判断当前的点在哪个阈值以内。
 
-    异常：。
+    异常：
         假设curr_location的没有angle属性则raise ValueError。
 
     参数：
@@ -80,13 +80,14 @@ def fix_angle(curr_location: Point, points: List[Point], radius: float) -> Union
         radius：我们设的半径阈值，会是一个常数。
 
     返回值：
+        Tuple[TurningDirection, float] / "用户离规划路径太远了，请重新规划路径" / "已到达终点"
         需要修正的角度（0到180度）,以及是顺时针还是逆时针。
         假设我们需要比较的点没有angle属性，则我们认为用户到达了终点（因为最后一个点没有angle属性），所以会return字符串 “已到达终点”。
         假设curr_location在阈值外面则返回字符串“用户离规划路径太远了，请重新规划路径”
     """
     if curr_location.angle is None:
         raise ValueError(f"{curr_location} 里没有角度")
-    if is_in_threshold(curr_location, points, radius) == ThresholdStatus.ABOVE_THRESHOLD:
+    if _is_in_threshold(curr_location, points, radius) == ThresholdStatus.ABOVE_THRESHOLD:
         return "用户离规划路径太远了，请重新规划路径"
     point_1 = _find_nearest_two_points(curr_location, points)[0]
     point_2 = _find_nearest_two_points(curr_location, points)[1]
@@ -96,9 +97,9 @@ def fix_angle(curr_location: Point, points: List[Point], radius: float) -> Union
 
     turning_angle: float
 
-    if is_in_threshold(curr_location, points, radius) == ThresholdStatus.THRESHOLD_CIRCLE:
+    if _is_in_threshold(curr_location, points, radius) == ThresholdStatus.THRESHOLD_CIRCLE:
         if nearest_point_angle is not None : turning_angle = curr_location.angle - nearest_point_angle
-    if is_in_threshold(curr_location, points, radius) == ThresholdStatus.THRESHOLD_RECTANGLE:
+    if _is_in_threshold(curr_location, points, radius) == ThresholdStatus.THRESHOLD_RECTANGLE:
         if previous_angle is not None : turning_angle =  curr_location.angle - previous_angle
 
     if turning_angle is None:
@@ -113,11 +114,8 @@ def fix_angle(curr_location: Point, points: List[Point], radius: float) -> Union
     if (180 < turning_angle <= 360):
         return TurningDirection.COUNTERCLOCKWISE, 360.0 - turning_angle
 
-    
 
-    
-
-def is_in_threshold(curr_location: Point, points: List[Point], radius: float) -> ThresholdStatus:
+def _is_in_threshold(curr_location: Point, points: List[Point], radius: float) -> ThresholdStatus:
     """
     判断当前的点在哪个阈值以内。
 
@@ -163,10 +161,16 @@ def _distance(p1: Point, p2: Point) -> float:
     """计算两个点之间的欧氏距离"""
     return math.hypot(p1.latitude - p2.latitude, p1.longitude - p2.longitude)
 
-def _is_point_in_parallelogram(p: Point, vertices: List[Tuple[float, float]]):
+def _is_point_in_parallelogram(p: Point, vertices: List[Tuple[float, float]]) -> bool:
     """
-    p: 点坐标，(px, py)
-    vertices: 平行四边形的顶点，顺时针或逆时针[(ax, ay), (bx, by), (cx, cy), (dx, dy)]
+    判断一个点是否在一个平行四边形/长方形里面。
+
+    传入vertices的时候注意vertices必须是按照顺时针/逆时针的顺序放在List里面的
+
+    原理是：判断平行四边形4向量与目标向量的叉乘的方向，假设方向一致,说明该点在平行四边形里面
+
+    参数：p: 点坐标，(px, py)
+        vertices: 平行四边形的顶点，顺时针或逆时针[(ax, ay), (bx, by), (cx, cy), (dx, dy)]
     """
     if len(vertices) != 4:
         raise ValueError("长方形有且只有4个顶点")
@@ -185,7 +189,7 @@ def _is_point_in_parallelogram(p: Point, vertices: List[Tuple[float, float]]):
 
     return all_positive or all_negative
 
-def _cross(ax, ay, bx, by):
+def _cross(ax, ay, bx, by) -> float:
     """计算叉积"""
     return ax * by - ay * bx
 
